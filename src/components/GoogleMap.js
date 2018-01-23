@@ -1,5 +1,17 @@
 import React, { Component } from 'react'
 
+let wasScriptAdded = false
+
+const mapsScript = window.document.createElement('script')
+mapsScript.async = true
+
+mapsScript.addEventListener('load', () => {
+  wasScriptAdded = true 
+})
+
+window.document.head.appendChild(mapsScript)
+mapsScript.src = 'https://maps.google.com/maps/api/js'
+
 class GoogleMap extends Component {
   initMap = () => {
     const { lat, lng } = this.props
@@ -12,21 +24,13 @@ class GoogleMap extends Component {
   }
 
   componentDidMount () {
-    const scriptAdded = Boolean(document.getElementById('maps-api'))
-
-    if (!scriptAdded) {
-      const script = window.document.createElement('script')
-      script.src = 'https://maps.google.com/maps/api/js'
-      script.async = true
-      script.id = 'maps-api'
-      script.onload = this.initMap
-
-      window.document.head.appendChild(script)
-    } else {
+    if (wasScriptAdded) {
       this.initMap()
+    } else {
+      mapsScript.addEventListener('load', this.initMap)
     }
   }
-  
+
   render () {
     return (
       <div ref="map" style={ {...this.props.style} } />
